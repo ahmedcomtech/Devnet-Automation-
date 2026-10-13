@@ -8,10 +8,11 @@ body {
 }
 
 #bar {
-  width: 100px;
+  --panel-alpha: 0.94;
+  width: 146px;
   box-sizing: border-box;
   padding: 0 8px 8px;
-  background: rgba(32, 33, 36, 0.94);
+  background: rgba(32, 33, 36, var(--panel-alpha));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   color: #e8eaed;
@@ -29,22 +30,22 @@ body {
   position: absolute;
   left: 50%;
   top: 7px;
-  width: 28px;
+  width: 32px;
   height: 4px;
-  margin-left: -14px;
+  margin-left: -16px;
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.3);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 40px);
-  gap: 4px;
+  grid-template-columns: repeat(3, 40px);
+  gap: 3px;
 }
 
 .sep {
   height: 1px;
-  margin: 8px 2px;
+  margin: 7px 2px;
   background: rgba(255, 255, 255, 0.12);
 }
 
@@ -76,61 +77,103 @@ button.danger:hover {
   background: #d93025;
   color: #fff;
 }
+button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+button:disabled:hover {
+  background: transparent;
+}
 body.cursor-mode #tools button.active {
   background: rgba(138, 180, 248, 0.25);
   color: inherit;
 }
 
+#toggles {
+  grid-template-columns: repeat(4, 1fr);
+}
+#toggles button {
+  width: 100%;
+  height: 32px;
+}
+#toggles button svg {
+  width: 18px;
+  height: 18px;
+}
+
 #colors {
   display: grid;
-  grid-template-columns: repeat(4, 18px);
-  gap: 4px;
+  grid-template-columns: repeat(5, 20px);
+  gap: 5px;
   justify-content: center;
+  margin-top: 8px;
 }
 .swatch {
   -webkit-app-region: no-drag;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.25);
   box-sizing: border-box;
   cursor: pointer;
+  position: relative;
 }
 .swatch.active {
   outline: 2px solid #8ab4f8;
   outline-offset: 2px;
 }
 .swatch.custom {
-  grid-column: span 4;
-  width: auto;
-  border-radius: 9px;
   background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
-  position: relative;
   overflow: hidden;
 }
 .swatch.custom input {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   cursor: pointer;
+  border: 0;
+  padding: 0;
 }
 
 #sizes {
   display: grid;
-  grid-template-columns: repeat(4, 20px);
-  gap: 1px;
+  grid-template-columns: repeat(4, 28px);
+  gap: 2px;
   justify-content: center;
   margin-top: 8px;
 }
 #sizes button {
-  width: 20px;
-  height: 24px;
-  border-radius: 6px;
+  width: 28px;
+  height: 26px;
+  border-radius: 7px;
 }
 #sizes .dot {
   display: block;
   border-radius: 50%;
   background: currentColor;
+}
+
+#pages {
+  display: none;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  margin-top: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+}
+body.on-board #pages {
+  display: grid;
+}
+#pages button {
+  height: 32px;
+}
+#page-label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 #bar.collapsed .extra {

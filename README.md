@@ -2,4 +2,4 @@
 
 ## Projects
 
-- [Screen Annotator](screen-annotator/): Epic Pen–style app for drawing on your screen while teaching online.
+- [Screen Annotator Pro](screen-annotator/): Epic Pen–style app for drawing, highlighting and presenting on your screen while teaching online.
