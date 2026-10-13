@@ -1,0 +1,36 @@
+{
+  "name": "screen-annotator",
+  "productName": "Screen Annotator",
+  "version": "0.1.0",
+  "description": "Draw on top of your screen while teaching online (Epic Pen style overlay).",
+  "main": "main.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.screenannotator.app",
+    "productName": "Screen Annotator",
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.education"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
