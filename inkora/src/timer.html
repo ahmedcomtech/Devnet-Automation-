@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'" />
+    <title>Class Timer</title>
+    <link rel="stylesheet" href="timer.css" />
+  </head>
+  <body>
+    <div id="panel">
+      <div id="top">
+        <div id="tabs">
+          <button data-mode="countdown" class="tab">Timer</button>
+          <button data-mode="stopwatch" class="tab">Stopwatch</button>
+        </div>
+        <button id="close" title="Close timer"></button>
+      </div>
+      <div id="display">05:00</div>
+      <div id="presets">
+        <button data-min="1">1m</button>
+        <button data-min="3">3m</button>
+        <button data-min="5">5m</button>
+        <button data-min="10">10m</button>
+        <button data-min="15">15m</button>
+      </div>
+      <div id="buttons">
+        <button id="minus" title="−1 minute"></button>
+        <button id="start" class="primary" title="Start / pause (Space)"></button>
+        <button id="reset" title="Reset"></button>
+        <button id="plus" title="+1 minute"></button>
+      </div>
+    </div>
+    <script src="icons.js"></script>
+    <script src="timer.js"></script>
+  </body>
+</html>

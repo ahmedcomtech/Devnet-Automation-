@@ -1,0 +1,101 @@
+{
+  "name": "inkora",
+  "productName": "Inkora",
+  "version": "2.0.0",
+  "description": "Inkora \u2013 draw, highlight, record and present on top of any app while teaching online.",
+  "main": "main.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.inkora.app",
+    "productName": "Inkora",
+    "files": [
+      "main.js",
+      "preload.js",
+      "lib/**/*",
+      "src/**/*",
+      "!node_modules/@napi-rs/**",
+      "!node_modules/pdfjs-dist/{legacy,web,image_decoders,types}/**",
+      "!**/*.map"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Inkora"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.education",
+      "icon": "build/icon.png",
+      "extendInfo": {
+        "NSScreenCaptureUsageDescription": "Inkora captures the screen for screenshots, recordings and the magnifier.",
+        "NSMicrophoneUsageDescription": "Inkora records your voice with screen recordings.",
+        "NSCameraUsageDescription": "Inkora shows your webcam in a floating bubble."
+      }
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Education",
+      "icon": "build/icon.png",
+      "maintainer": "Inkora"
+    },
+    "artifactName": "Inkora-${version}-${os}-${arch}.${ext}",
+    "portable": {
+      "artifactName": "Inkora-${version}-portable.${ext}"
+    },
+    "fileAssociations": [
+      {
+        "ext": "inkora",
+        "name": "Inkora lesson",
+        "role": "Editor"
+      }
+    ]
+  },
+  "dependencies": {
+    "pdfjs-dist": "6.3.289"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmedcomtech/Devnet-Automation-.git"
+  }
+}

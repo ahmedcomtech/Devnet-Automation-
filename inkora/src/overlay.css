@@ -1,0 +1,237 @@
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  user-select: none;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  display: block;
+}
+
+/* Only the live canvas takes pointer input; the others are visual layers. */
+#base,
+#ink,
+#fx {
+  pointer-events: none;
+}
+
+#live {
+  /* No browser panning, zooming or Windows Ink press-and-hold gestures: every pen sample is ink. */
+  touch-action: none;
+}
+
+body[data-mode='draw'] #live {
+  cursor: crosshair;
+}
+body[data-mode='draw'][data-tool='eraser'] #live,
+body[data-mode='draw'][data-tool='laser'] #live,
+body[data-mode='draw'][data-tool='spotlight'] #live,
+body[data-mode='draw'][data-tool='magnifier'] #live {
+  cursor: none;
+}
+body[data-mode='draw'][data-tool='text'] #live,
+body[data-mode='draw'][data-tool='note'] #live {
+  cursor: text;
+}
+body[data-mode='draw'][data-tool='curtain'] #live {
+  cursor: ns-resize;
+}
+body[data-mode='draw'][data-tool='select'] #live {
+  cursor: default;
+}
+body[data-mode='draw'][data-tool='select'] #live.over-shape {
+  cursor: move;
+}
+body[data-mode='draw'][data-tool='select'] #live.over-handle {
+  cursor: nwse-resize;
+}
+
+body.hidden #base,
+body.hidden #ink,
+body.hidden #live,
+body.hidden #text-input {
+  visibility: hidden;
+}
+
+/* While the magnifier grabs a screen image, hide everything that is not an annotation. */
+body.capturing #live,
+body.capturing #fx,
+body.capturing #frame,
+body.capturing #page-pill,
+body.capturing #hint,
+body.capturing #quick {
+  visibility: hidden;
+}
+/* Freezing grabs the bare screen, so the annotations are hidden too. */
+body.capturing-all > * {
+  visibility: hidden !important;
+}
+
+#text-input {
+  position: fixed;
+  display: none;
+  z-index: 2;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 1px dashed rgba(127, 127, 127, 0.8);
+  outline-offset: 4px;
+  background: transparent;
+  resize: none;
+  overflow: hidden;
+  white-space: pre;
+  font-weight: 600;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+#text-input.note {
+  border-radius: 10px;
+  outline-offset: 2px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Thin border that tells the presenter the overlay is capturing the mouse. */
+#frame {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 3px var(--accent, #ff3b30);
+  opacity: 0.55;
+  display: none;
+}
+body[data-mode='draw'] #frame {
+  display: block;
+}
+
+#page-pill,
+#hint {
+  position: fixed;
+  pointer-events: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(32, 33, 36, 0.85);
+  color: #e8eaed;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#page-pill {
+  right: 20px;
+  bottom: 20px;
+  display: none;
+}
+body.on-board #page-pill {
+  display: block;
+}
+
+#hint {
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+#hint.show {
+  opacity: 1;
+}
+
+#countdown {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 180px;
+  height: 180px;
+  margin: -90px 0 0 -90px;
+  border-radius: 50%;
+  display: none;
+  place-items: center;
+  background: rgba(217, 48, 37, 0.9);
+  color: #fff;
+  font-size: 96px;
+  font-weight: 700;
+  pointer-events: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+#countdown.show {
+  display: grid;
+  animation: pop 1s ease-out;
+}
+@keyframes pop {
+  from {
+    transform: scale(1.4);
+    opacity: 0.3;
+  }
+  20% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Right-click / pen-button quick palette. */
+#quick {
+  position: fixed;
+  z-index: 3;
+  display: none;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(32, 33, 36, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  color: #e8eaed;
+}
+#quick.show {
+  display: block;
+}
+#quick .row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+#quick .row + .row {
+  margin-top: 6px;
+}
+#quick button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+#quick button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+#quick button.active {
+  background: #8ab4f8;
+  color: #202124;
+}
+#quick button svg {
+  width: 22px;
+  height: 22px;
+}
+#quick .swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-sizing: border-box;
+}
+#quick .swatch.active {
+  outline: 2px solid #8ab4f8;
+  outline-offset: 2px;
+}
+#quick .dot {
+  border-radius: 50%;
+  background: currentColor;
+}

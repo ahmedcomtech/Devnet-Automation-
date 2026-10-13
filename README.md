@@ -2,4 +2,4 @@
 
 ## Projects
 
-- [Screen Annotator Pro](screen-annotator/): Epic Pen–style app for drawing, highlighting and presenting on your screen while teaching online.
+- [Inkora](inkora/): pro screen-annotation and presenting app for online teaching (draw on any app, record, whiteboard pages, PDF import, pen-tablet optimized).

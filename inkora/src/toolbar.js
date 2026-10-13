@@ -6,26 +6,33 @@
   const svg = window.svgIcon;
 
   const TOOLS = [
-    ['select', 'Select & move (V) – drag to box-select, Shift adds, Del deletes'],
+    ['select', 'Select (V) – move, resize from the corner, double-click text to edit, Ctrl+C / Ctrl+V'],
     ['pen', 'Pen (P) – pressure sensitive with a pen tablet'],
     ['highlighter', 'Highlighter (H)'],
-    ['eraser', 'Eraser (E)'],
+    ['eraser', 'Eraser (E) – also the eraser end of your stylus'],
     ['laser', 'Laser pointer (K)'],
     ['spotlight', 'Spotlight (G) – scroll to resize'],
     ['magnifier', 'Magnifier (Z) – scroll to zoom, click to refresh'],
+    ['curtain', 'Screen curtain (U) – drag or scroll to reveal step by step'],
+    ['text', 'Text (T) – Enter to finish, Shift+Enter for a new line'],
+    ['note', 'Sticky note (Y)'],
     ['line', 'Line (L) – Shift snaps to 45°'],
     ['arrow', 'Arrow (A) – Shift snaps to 45°'],
+    ['arrow2', 'Double arrow (X)'],
     ['rect', 'Rectangle (R) – Shift for square'],
     ['ellipse', 'Ellipse (O) – Shift for circle'],
-    ['text', 'Text (T) – Enter to finish, Shift+Enter for new line'],
+    ['triangle', 'Triangle'],
+    ['diamond', 'Diamond'],
+    ['callout', 'Speech bubble'],
     ['badge', 'Numbered step badge (N)'],
+    ['stamp', 'Stamp (M) – click again to choose ✓ ✗ ★ ♥ ? ☺'],
   ];
 
   const TOGGLES = [
+    ['smartInk', 'smart', 'Smart shapes (S) – rough lines, boxes, circles and triangles become clean shapes'],
     ['fill', 'fill', 'Fill shapes (F)'],
     ['dash', 'dash', 'Dashed lines (D)'],
     ['fadeInk', 'fade', 'Fading ink (I) – strokes disappear after a few seconds'],
-    ['cursorHighlight', 'cursorHighlight', 'Highlight cursor (C)'],
   ];
 
   const bar = document.getElementById('bar');
@@ -44,20 +51,39 @@
 
   function shortcut(name) {
     const accel = state && state.settings.shortcuts[name];
-    return accel ? ` (${accel.replace('CommandOrControl', 'Ctrl')})` : '';
+    return accel ? ` (${accel.replace('CommandOrControl', api.platform === 'darwin' ? 'Cmd' : 'Ctrl')})` : '';
   }
 
   // ---------- build ----------
 
+  const quit = document.getElementById('quit');
+  quit.innerHTML = svg('close');
+  quit.addEventListener('click', () => api.command('quit'));
+
   const modes = document.getElementById('modes');
   const cursorBtn = button(modes, 'cursor', '', () => api.update({ mode: 'cursor' }));
   const drawBtn = button(modes, 'draw', '', () => api.update({ mode: 'draw' }));
-  button(modes, 'menu', 'More: boards, pages, export, sessions, settings…', () => api.command('menu'));
+  button(modes, 'menu', 'More: boards & pages, PDF, stamps, export, sessions, settings…', () => api.command('menu'));
+  const collapseBtn = button(modes, 'collapse', 'Collapse toolbar', () => {
+    bar.classList.toggle('collapsed');
+    syncCollapse();
+    reportSize();
+  });
+
+  function syncCollapse() {
+    const collapsed = bar.classList.contains('collapsed');
+    const horizontal = bar.classList.contains('horizontal');
+    collapseBtn.innerHTML = svg(collapsed ? (horizontal ? 'right' : 'expand') : horizontal ? 'left' : 'collapse');
+    collapseBtn.title = collapsed ? 'Expand toolbar' : 'Collapse toolbar';
+  }
 
   const toolsEl = document.getElementById('tools');
   const toolBtns = {};
   for (const [tool, title] of TOOLS) {
-    toolBtns[tool] = button(toolsEl, tool, title, () => api.update({ tool, mode: 'draw' }));
+    toolBtns[tool] = button(toolsEl, tool, title, () => {
+      if (tool === 'stamp' && state.tool === 'stamp' && state.mode === 'draw') api.command('stamp-menu');
+      else api.update({ tool, mode: 'draw' });
+    });
   }
 
   const togglesEl = document.getElementById('toggles');
@@ -109,12 +135,18 @@
   button(actions, 'undo', 'Undo (Ctrl+Z)', () => api.command('undo'));
   button(actions, 'redo', 'Redo (Ctrl+Y)', () => api.command('redo'));
   const clearBtn = button(actions, 'clear', '', () => api.command('clear'), 'danger');
+  const eyeBtn = button(actions, 'eye', '', () => api.update({ annotationsVisible: !state.annotationsVisible }));
   const boardBtn = button(actions, 'board', '', () => {
     const next = C.boards[(C.boards.indexOf(state.board) + 1) % C.boards.length];
     api.update({ board: next, mode: next === 'none' ? state.mode : 'draw' });
   });
-  const eyeBtn = button(actions, 'eye', '', () => api.update({ annotationsVisible: !state.annotationsVisible }));
+  const freezeBtn = button(actions, 'freeze', '', () => api.command('freeze'));
   const cameraBtn = button(actions, 'camera', '', () => api.command('screenshot'));
+  const recordBtn = button(actions, 'record', '', () => api.command('record'));
+  const webcamBtn = button(actions, 'webcam', '', () => api.command('webcam'));
+  const timerBtn = button(actions, 'timer', '', () => api.command('timer'));
+  const highlightBtn = button(actions, 'cursorHighlight', '', () => api.update({ cursorHighlight: !state.cursorHighlight }));
+  button(actions, 'settings', 'Settings', () => api.command('settings'));
 
   const pagePrev = document.getElementById('page-prev');
   const pageNext = document.getElementById('page-next');
@@ -123,35 +155,58 @@
   pagePrev.addEventListener('click', () => api.command('page-prev'));
   pageNext.addEventListener('click', () => api.command('page-next'));
 
-  const footer = document.getElementById('footer');
-  const collapseBtn = button(footer, 'collapse', 'Collapse toolbar', () => {
-    bar.classList.toggle('collapsed');
-    const collapsed = bar.classList.contains('collapsed');
-    collapseBtn.innerHTML = svg(collapsed ? 'expand' : 'collapse');
-    collapseBtn.title = collapsed ? 'Expand toolbar' : 'Collapse toolbar';
-    reportSize();
-  });
-  button(footer, 'settings', 'Settings', () => api.command('settings'));
-  const quitBtn = button(footer, 'close', '', () => api.command('quit'), 'danger');
+  const recTime = document.getElementById('rec-time');
+  const recPause = document.getElementById('rec-pause');
+  const recStop = document.getElementById('rec-stop');
+  recStop.innerHTML = svg('stop');
+  recPause.addEventListener('click', () => api.command('record-pause'));
+  recStop.addEventListener('click', () => api.command('record-stop'));
 
   // ---------- sync with main process ----------
 
-  let lastHeight = 0;
+  let lastSize = '';
   function reportSize() {
     requestAnimationFrame(() => {
       const r = bar.getBoundingClientRect();
-      if (Math.round(r.height) === lastHeight) return;
-      lastHeight = Math.round(r.height);
+      const key = `${Math.round(r.width)}x${Math.round(r.height)}`;
+      if (key === lastSize) return;
+      lastSize = key;
       api.command('toolbar:resize', { width: r.width, height: r.height });
     });
   }
+
+  function formatTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const pad = (n) => String(n).padStart(2, '0');
+    return s >= 3600 ? `${Math.floor(s / 3600)}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}` : `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+  }
+
+  function updateRecTime() {
+    if (!state || state.recording === 'idle') return;
+    if (state.recording === 'countdown') {
+      recTime.textContent = 'Starting…';
+      return;
+    }
+    const running = state.recording === 'recording' ? Date.now() - state.recordStartedAt : 0;
+    recTime.textContent = formatTime(state.recordElapsed + running);
+  }
+  setInterval(updateRecTime, 500);
 
   function sync() {
     const s = state.settings;
     const drawing = state.mode === 'draw';
     const onBoard = state.board !== 'none';
+    const recording = state.recording !== 'idle';
+    document.body.classList.toggle('light', s.theme === 'light');
     document.body.classList.toggle('cursor-mode', !drawing);
     document.body.classList.toggle('on-board', onBoard);
+    document.body.classList.toggle('recording', recording);
+    document.body.classList.toggle('paused', state.recording === 'paused');
+    const horizontal = s.toolbarOrientation === 'horizontal';
+    if (horizontal !== bar.classList.contains('horizontal')) {
+      bar.classList.toggle('horizontal', horizontal);
+      syncCollapse();
+    }
     bar.style.setProperty('--panel-alpha', s.toolbarOpacity);
 
     cursorBtn.classList.toggle('active', !drawing);
@@ -178,7 +233,7 @@
     const nextBoard = C.boards[(C.boards.indexOf(state.board) + 1) % C.boards.length];
     boardBtn.classList.toggle('active', onBoard);
     boardBtn.title = `${C.boardNames[state.board]} – click for ${C.boardNames[nextBoard]} (B)`;
-    pageLabel.textContent = `${state.page + 1} / ${state.pageCount}`;
+    pageLabel.textContent = `${state.page + 1}/${state.pageCount}`;
     pagePrev.disabled = state.page === 0;
     const atEnd = state.page === state.pageCount - 1;
     pageNext.innerHTML = svg(atEnd ? 'plus' : 'right');
@@ -187,10 +242,21 @@
     eyeBtn.innerHTML = svg(state.annotationsVisible ? 'eye' : 'eyeOff');
     eyeBtn.classList.toggle('active', !state.annotationsVisible);
     eyeBtn.title = (state.annotationsVisible ? 'Hide annotations' : 'Show annotations') + shortcut('toggleVisible');
-
+    freezeBtn.classList.toggle('active', !!state.frozen);
+    freezeBtn.title = `Freeze screen – pause a video and draw on it${shortcut('freeze')}`;
+    recordBtn.classList.toggle('rec-on', recording);
+    recordBtn.title = (recording ? 'Stop recording' : 'Record screen with your voice') + shortcut('record');
+    recPause.innerHTML = svg(state.recording === 'paused' ? 'play' : 'pause');
+    webcamBtn.classList.toggle('active', !!state.cameraOpen);
+    webcamBtn.title = `Webcam bubble${shortcut('webcam')}`;
+    timerBtn.classList.toggle('active', !!state.timerOpen);
+    timerBtn.title = `Class timer${shortcut('timer')}`;
+    highlightBtn.classList.toggle('active', !!state.cursorHighlight);
+    highlightBtn.title = `Highlight cursor (C)${shortcut('cursorHighlight')}`;
     clearBtn.title = `Clear all (Delete)${shortcut('clear')}`;
     cameraBtn.title = `Save screenshot${shortcut('screenshot')} – more export options in the ⋯ menu`;
-    quitBtn.title = `Quit${shortcut('quit')}`;
+    quit.title = `Quit${shortcut('quit')}`;
+    updateRecTime();
     reportSize();
   }
 

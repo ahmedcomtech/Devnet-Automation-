@@ -1,0 +1,330 @@
+html,
+body {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  --panel: 32, 33, 36;
+  --text: #e8eaed;
+  --line: rgba(255, 255, 255, 0.12);
+  --hover: rgba(255, 255, 255, 0.1);
+  --accent: #8ab4f8;
+  --on-accent: #202124;
+  --soft-accent: rgba(138, 180, 248, 0.25);
+}
+body.light {
+  --panel: 255, 255, 255;
+  --text: #202124;
+  --line: rgba(0, 0, 0, 0.12);
+  --hover: rgba(0, 0, 0, 0.07);
+  --accent: #1a73e8;
+  --on-accent: #ffffff;
+  --soft-accent: rgba(26, 115, 232, 0.15);
+}
+
+#bar {
+  --panel-alpha: 0.94;
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 0 6px 6px;
+  background: rgba(var(--panel), var(--panel-alpha));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--text);
+}
+
+#handle {
+  height: 18px;
+  margin: 0 -6px 4px;
+  cursor: grab;
+  -webkit-app-region: drag;
+  position: relative;
+}
+#handle::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 32px;
+  height: 4px;
+  margin-left: -16px;
+  border-radius: 2px;
+  background: var(--line);
+  filter: contrast(3);
+}
+#quit {
+  position: absolute;
+  right: 4px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  opacity: 0.6;
+}
+#quit:hover {
+  opacity: 1;
+  background: #d93025;
+  color: #fff;
+}
+#quit svg {
+  width: 11px;
+  height: 11px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 32px);
+  gap: 2px;
+}
+
+.sep {
+  height: 1px;
+  margin: 6px 2px;
+  background: var(--line);
+}
+
+button {
+  -webkit-app-region: no-drag;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+button:hover {
+  background: var(--hover);
+}
+button.active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+button svg {
+  width: 19px;
+  height: 19px;
+}
+button.danger:hover {
+  background: #d93025;
+  color: #fff;
+}
+button.rec-on {
+  background: #d93025;
+  color: #fff;
+}
+button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+button:disabled:hover {
+  background: transparent;
+}
+body.cursor-mode #tools button.active {
+  background: var(--soft-accent);
+  color: inherit;
+}
+
+#toggles button {
+  height: 28px;
+}
+#toggles button svg {
+  width: 17px;
+  height: 17px;
+}
+
+#colors {
+  display: grid;
+  grid-template-columns: repeat(5, 20px);
+  gap: 5px;
+  justify-content: center;
+  margin-top: 7px;
+}
+.swatch {
+  -webkit-app-region: no-drag;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  box-sizing: border-box;
+  cursor: pointer;
+  position: relative;
+}
+.swatch.active {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.swatch.custom {
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+  overflow: hidden;
+}
+.swatch.custom input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+}
+
+#sizes {
+  display: grid;
+  grid-template-columns: repeat(4, 28px);
+  gap: 2px;
+  justify-content: center;
+  margin-top: 7px;
+}
+#sizes button {
+  width: 28px;
+  height: 24px;
+  border-radius: 7px;
+}
+#sizes .dot {
+  display: block;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+#pages {
+  display: none;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  margin-top: 3px;
+  background: var(--hover);
+  border-radius: 8px;
+}
+body.on-board #pages {
+  display: grid;
+}
+#pages button {
+  height: 28px;
+}
+#page-label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+#rec {
+  display: none;
+  grid-template-columns: 10px 1fr 28px 28px;
+  gap: 4px;
+  align-items: center;
+  margin-top: 6px;
+  padding: 2px 2px 2px 8px;
+  border-radius: 8px;
+  background: rgba(217, 48, 37, 0.18);
+}
+body.recording #rec {
+  display: grid;
+}
+#rec .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d93025;
+  animation: blink 1s steps(2) infinite;
+}
+body.paused #rec .dot {
+  animation: none;
+  opacity: 0.4;
+}
+#rec-time {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+#rec button {
+  width: 28px;
+  height: 28px;
+}
+#rec button svg {
+  width: 15px;
+  height: 15px;
+}
+@keyframes blink {
+  to {
+    opacity: 0.2;
+  }
+}
+
+#bar.collapsed .extra {
+  display: none;
+}
+
+/* ---------- horizontal layout ---------- */
+#bar.horizontal {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 6px 6px 0;
+}
+#bar.horizontal #handle {
+  width: 16px;
+  height: 66px;
+  margin: 0 4px 0 0;
+}
+#bar.horizontal #handle::before {
+  left: 6px;
+  top: 50%;
+  width: 4px;
+  height: 32px;
+  margin: -16px 0 0;
+}
+#bar.horizontal #quit {
+  right: auto;
+  left: 0;
+  top: -4px;
+}
+#bar.horizontal .extra {
+  display: flex;
+  align-items: center;
+}
+#bar.horizontal.collapsed .extra {
+  display: none;
+}
+#bar.horizontal .grid {
+  grid-template-columns: none;
+  grid-template-rows: repeat(2, 32px);
+  grid-auto-flow: column;
+  grid-auto-columns: 32px;
+}
+#bar.horizontal #toggles {
+  grid-template-rows: repeat(2, 28px);
+}
+#bar.horizontal .sep {
+  width: 1px;
+  height: 56px;
+  margin: 0 6px;
+}
+#bar.horizontal #colors {
+  grid-template-columns: repeat(5, 20px);
+  margin: 0 0 0 8px;
+}
+#bar.horizontal #sizes {
+  grid-template-columns: repeat(2, 28px);
+  margin: 0 0 0 8px;
+}
+#bar.horizontal #pages {
+  grid-template-columns: 28px;
+  grid-template-rows: 22px 18px 22px;
+  margin: 0 0 0 6px;
+}
+#bar.horizontal #pages button {
+  width: 28px;
+  height: 22px;
+}
+#bar.horizontal #page-label {
+  font-size: 11px;
+}
+#bar.horizontal #rec {
+  margin: 0 0 0 8px;
+}

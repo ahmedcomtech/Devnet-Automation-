@@ -1,0 +1,58 @@
+name: Build Inkora
+
+on:
+  push:
+    paths:
+      - 'inkora/**'
+      - '.github/workflows/inkora.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            target: --win
+          - name: macOS
+            os: macos-latest
+            target: --mac
+          - name: Linux
+            os: ubuntu-latest
+            target: --linux
+    defaults:
+      run:
+        working-directory: inkora
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: inkora/package-lock.json
+
+      - run: npm ci
+
+      - run: npm test
+
+      - name: Build installers
+        run: npx electron-builder ${{ matrix.target }} --publish never
+        env:
+          # Unsigned builds: no code-signing certificate is configured.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Inkora-${{ matrix.name }}
+          path: |
+            inkora/dist/*.exe
+            inkora/dist/*.dmg
+            inkora/dist/*.AppImage
+            inkora/dist/*.deb
+          if-no-files-found: error
+          retention-days: 30

@@ -52,3 +52,25 @@ test('settings survive a save/load round trip and bad files fall back to default
   assert.deepEqual(S.loadSettings(file), S.sanitizeSettings({}));
   fs.rmSync(dir, { recursive: true });
 });
+
+test('pen tablet, recording and toolbar settings are validated', () => {
+  const s = S.sanitizeSettings({
+    penPressureCurve: 9,
+    smoothing: 4.6,
+    penButton: 'explode',
+    recordFps: 60,
+    toolbarOrientation: 'horizontal',
+    theme: 'neon',
+    micDeviceId: 'abc123==',
+    cameraDeviceId: '<script>',
+  });
+  assert.equal(s.penPressureCurve, 3);
+  assert.equal(s.smoothing, 5);
+  assert.equal(s.penButton, 'palette');
+  assert.equal(s.recordFps, 60);
+  assert.equal(s.toolbarOrientation, 'horizontal');
+  assert.equal(s.theme, 'dark');
+  assert.equal(s.micDeviceId, 'abc123==');
+  assert.equal(s.cameraDeviceId, '');
+  assert.deepEqual(S.sanitizeState({ tool: 'stamp', stamp: 'star', smartInk: true, frozen: true }), { tool: 'stamp', stamp: 'star', smartInk: true, frozen: true });
+});

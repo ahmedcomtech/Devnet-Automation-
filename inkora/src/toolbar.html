@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'" />
-    <title>Screen Annotator Pro</title>
+    <title>Inkora</title>
     <link rel="stylesheet" href="toolbar.css" />
   </head>
   <body>
     <div id="bar">
-      <div id="handle" title="Drag to move"></div>
+      <div id="handle" title="Drag to move"><button id="quit"></button></div>
       <div class="grid" id="modes"></div>
       <div class="extra">
         <div class="sep"></div>
@@ -25,8 +25,12 @@
           <button id="page-next" title="Next / new page (Page Down)"></button>
         </div>
       </div>
-      <div class="sep"></div>
-      <div class="grid" id="footer"></div>
+      <div id="rec">
+        <span class="dot"></span>
+        <span id="rec-time">00:00</span>
+        <button id="rec-pause" title="Pause / resume recording"></button>
+        <button id="rec-stop" title="Stop recording"></button>
+      </div>
     </div>
     <script src="shared.js"></script>
     <script src="icons.js"></script>
